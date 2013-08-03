@@ -7,3 +7,5 @@ project/project
 .project
 bin
 /.ensime
+.idea
+.idea_modules
