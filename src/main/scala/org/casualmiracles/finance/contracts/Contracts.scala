@@ -1,21 +1,19 @@
 package org.casualmiracles.finance.contracts
 
-import Stream.Empty
+object Contracts extends PRs {
 
-object Contracts extends PRs with Zip {
-  
   def one = One.apply _
   def when = (When.apply _).curried
   def anytime = (Anytime.apply _).curried
   def until = (Until.apply _).curried
   def scale = (Scale.apply _).curried
   def cond = (Cond.apply _).curried
-  
+
   implicit def toConstant[T](x: T) = constant(x)
 
-  def constant[T](k: T): Observable[T] = Observable((d: Date) ⇒ bigK(k))
+  def constant[T](k: T): Obs[T] = Obs((d: Date) => bigK(k))
 
-  def date: Observable[Date] = Observable((t: Date) ⇒ PR(timeSlices(Stream(t))))
+  def date: Obs[Date] = Obs((t: Date) => PR(timeSlices(Stream(t))))
 
   def bigK[T](x: T): PR[T] = PR(konstSlices(x))
 
@@ -32,9 +30,9 @@ object Contracts extends PRs with Zip {
     sl #:: timeSlices(nextSlice)
   }
 
-  def between(d1: Date, d2: Date): Observable[Boolean] = (date %>= d1) %&& (date %<= d2)
+  def between(d1: Date, d2: Date): Obs[Boolean] = (date >= d1) && (date <= d2)
 
-  def at(d: Date): Observable[Boolean] = date %== d
+  def at(d: Date): Obs[Boolean] = date === d
 
   def mkDate(t: TimeStep): Date = Date((), t)
 

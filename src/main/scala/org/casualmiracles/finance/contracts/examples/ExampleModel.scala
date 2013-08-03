@@ -1,24 +1,27 @@
 package org.casualmiracles.finance.contracts.examples
 
 import org.casualmiracles.finance.contracts._
+
 import Contracts._
 import Stream._
 
 object ExampleModel {
+  import Zip._
+
   // Compositional valuation semantics for contracts
-  def evalC(model: Model, k: Currency): Contract ⇒ PR[Double] = {
+  def evalC(model: Model, k: Currency): Contract => PR[Double] = {
     def eval(contract: Contract): PR[Double] = contract match {
-      case Zero            ⇒ bigK(0)
-      case One(k2)         ⇒ model.exch(k)(k2)
-      case Give(c)         ⇒ bigK(-1.0) %* eval(c)
-      case Scale(o, c)     ⇒ evalO(o) %* eval(c)
-      case And(c1, c2)     ⇒ eval(c1) %+ eval(c2)
-      case Or(c1, c2)      ⇒ max(eval(c1), eval(c2))
-      case Cond(o, c1, c2) ⇒ condPr(evalO(o), eval(c1), eval(c2))
-      case When(o, c)      ⇒ disc(k, evalO(o), eval(c))
+      case Zero            => bigK(0)
+      case One(k2)         => model.exch(k)(k2)
+      case Give(c)         => bigK(-1.0) * eval(c)
+      case Scale(o, c)     => evalO(o) * eval(c)
+      case And(c1, c2)     => eval(c1) %+ eval(c2)
+      case Or(c1, c2)      => max(eval(c1), eval(c2))
+      case Cond(o, c1, c2) => condPr(evalO(o), eval(c1), eval(c2))
+      case When(o, c)      => disc(k, evalO(o), eval(c))
       //      eval (Anytime o c)  = snell  k (evalO o, eval c)
-      case Until(o, c)     ⇒ absorb(k, evalO(o), eval(c))
-      case _               ⇒ sys.error("todo")
+      case Until(o, c)     => absorb(k, evalO(o), eval(c))
+      case _               => sys.error("todo")
     }
     eval _
   }
@@ -29,10 +32,10 @@ object ExampleModel {
 
   case class Model(
     modelStart: Date,
-    disc: Currency ⇒ PR[Boolean] ⇒ PR[Double] ⇒ PR[Double],
-    exch: Currency ⇒ Currency ⇒ PR[Double],
-    absorb: Currency ⇒ PR[Boolean] ⇒ PR[Double] ⇒ PR[Double],
-    rateModel: Currency ⇒ PR[Double])
+    disc: Currency => PR[Boolean] => PR[Double] => PR[Double],
+    exch: Currency => Currency => PR[Double],
+    absorb: Currency => PR[Boolean] => PR[Double] => PR[Double],
+    rateModel: Currency => PR[Double])
 
   def exampleModel(modelDate: Date) = Model(
     modelStart = Date(modelDate, 0),
@@ -43,7 +46,9 @@ object ExampleModel {
 
   // Interest Rate Model
   def rates(rateNow: Double, delta: Double): PR[Double] = {
-    def makeRateSlices(rateNow: Double, n: Int): Stream[RV[Double]] = rateSlice(rateNow, n) #:: makeRateSlices(rateNow - delta, n + 1)
+    def makeRateSlices(rateNow: Double, n: Int): Stream[RV[Double]] = {
+      rateSlice(rateNow, n) #:: makeRateSlices(rateNow - delta, n + 1)
+    }
     def rateSlice(minRate: Double, n: Int) = comb(minRate).take(n)
     def comb(x: Double): Stream[Double] = x #:: comb(x + 2 * delta)
     PR(makeRateSlices(rateNow, 1))
@@ -66,26 +71,27 @@ object ExampleModel {
     val (bRv #:: bs) = b
     val (pRv #:: ps) = p
     val (rateRv #:: rs) = rate
-    if (bRv.forall(bv ⇒ bv)) Stream(pRv)
-    else {
+    if (bRv.forall(bv => bv)) {
+      Stream(pRv)
+    } else {
       val rest = discCalc(bs, ps, rs)
       val (nextSlice #:: _) = rest
-      val discSlice = zipWith(prevSlice(nextSlice), rateRv)((x, r) ⇒ x / (1 + r / 100))
-      val thisSlice = zipWith3(bRv, pRv, discSlice)((b, p, q) ⇒ if (b) p else q)
+      val discSlice = zipWith(prevSlice(nextSlice), rateRv)((x, r) => x / (1 + r / 100))
+      val thisSlice = zipWith3(bRv, pRv, discSlice)((b, p, q) => if (b) p else q)
       thisSlice #:: rest
     }
   }
 
   def prevSlice(s: RV[Double]): RV[Double] = s match {
-    case Empty                ⇒ Empty
-    case (_ #:: Empty)        ⇒ Empty
-    case (n1 #:: n2 #:: rest) ⇒ ((n1 + n2) / 2.0) #:: prevSlice(n2 #:: rest)
+    case Empty                => Empty
+    case (_ #:: Empty)        => Empty
+    case (n1 #:: n2 #:: rest) => ((n1 + n2) / 2.0) #:: prevSlice(n2 #:: rest)
   }
 
   def absorb(k: Currency, prb: PR[Boolean], prRvs: PR[Double]): PR[Double] = {
     val bSlices = prb.unPr
     val rvs = prRvs.unPr
-    PR(zipWith(bSlices, rvs)((bRv, rvsRv) ⇒ zipWith(bRv, rvsRv)((o, p) ⇒ if (o) 0 else p)))
+    PR(zipWith(bSlices, rvs)((bRv, rvsRv) => zipWith(bRv, rvsRv)((o, p) => if (o) 0 else p)))
   }
 
   def exch(k1: Currency, k2: Currency): PR[Double] = PR(konstSlices(1))
@@ -106,5 +112,5 @@ object ExampleModel {
     paths(Stream(1))
   }
 
-  def evalO[T](o: Observable[T]): PR[T] = o.f(time0)
+  def evalO[T](o: Obs[T]): PR[T] = o.f(time0)
 }
