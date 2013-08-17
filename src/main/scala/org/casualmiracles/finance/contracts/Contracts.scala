@@ -1,5 +1,7 @@
 package org.casualmiracles.finance.contracts
 
+import org.joda.time.{DateTimeZone, LocalDate}
+
 object Contracts extends PRs {
 
   def one = One.apply _
@@ -34,8 +36,12 @@ object Contracts extends PRs {
 
   def at(d: Date): Obs[Boolean] = date === d
 
-  def mkDate(t: TimeStep): Date = Date((), t)
+  def mkDate(d: CalendarTime, t: TimeStep): Date = Date(d, t)
 
-  def time0: Date = mkDate(0)
+  def mkDate(t: TimeStep): Date = Date(now(), t)
+
+  def time0: Date = mkDate(now(), 0)
+
+  def now(implicit timeZone: DateTimeZone = DateTimeZone.UTC): CalendarTime = LocalDate.now()
 
 }

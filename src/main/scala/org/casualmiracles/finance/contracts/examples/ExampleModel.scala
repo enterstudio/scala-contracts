@@ -38,11 +38,11 @@ object ExampleModel {
     rateModel: Currency => PR[Double])
 
   def exampleModel(modelDate: Date) = Model(
-    modelStart = Date(modelDate, 0),
+    modelStart = modelDate,
     disc = (disc _).curried,
     exch = (exch _).curried,
     absorb = (absorb _).curried,
-    rateModel = rateModel _)
+    rateModel = rateModel)
 
   // Interest Rate Model
   def rates(rateNow: Double, delta: Double): PR[Double] = {
