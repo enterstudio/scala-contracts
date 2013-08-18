@@ -9,13 +9,13 @@ import Instruments._
 
 object SwapExperiment extends App {
 
-  def interestRate = constant(1.0) // obviously need a real source of interest rates
+  def interestRate = const(1.0) // obviously need a real source of interest rates
 
-  def fixedRate(notional: Double, currency: Currency, rate: Double) = {
+  def fixedRate(notional: BigDecimal, currency: Currency, rate: BigDecimal) = {
     scale(notional * rate)(One(currency))
   }
 
-  def floatingRate(notional: Double, currency: Currency, rate: Obs[Double]) = {
+  def floatingRate(notional: BigDecimal, currency: Currency, rate: Obs[BigDecimal]) = {
     scale(rate * notional)(One(currency))
   }
 

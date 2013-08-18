@@ -11,9 +11,9 @@ object Contracts extends PRs {
   def scale = (Scale.apply _).curried
   def cond = (Cond.apply _).curried
 
-  implicit def toConstant[T](x: T) = constant(x)
+  implicit def toConst[T](x: T) = const(x)
 
-  def constant[T](k: T): Obs[T] = Obs((d: Date) => bigK(k))
+  def const[T](k: T): Obs[T] = Obs((d: Date) => bigK(k))
 
   def date: Obs[Date] = Obs((t: Date) => PR(timeSlices(Stream(t))))
 

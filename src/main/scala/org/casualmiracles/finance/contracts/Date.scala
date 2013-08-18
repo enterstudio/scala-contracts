@@ -1,5 +1,10 @@
 package org.casualmiracles.finance.contracts
 
+import org.joda.time.Days
+
 case class Date(c: CalendarTime, t: TimeStep) extends Ordered[Date] {
-  def compare(that: Date) = c.plusDays(t) compareTo that.c.plusDays(that.t)
+  def localDate = c.plusDays(t)
+  def compare(that: Date) = localDate compareTo that.localDate
+
+  def -(d: Date): Int = Days.daysBetween(d.localDate, localDate).getDays
 }

@@ -8,11 +8,11 @@ import ExampleModel._
 object Cashflows {
   import Zip._
 
-  def cashflow(model: Model, k: Currency, steps: Int): Contract => PR[Double] = {
-    def eval(contract: Contract): PR[Double] = contract match {
-      case Zero            => bigK(0)
+  def cashflow(model: Model, k: Currency, steps: Int): Contract => PR[BigDecimal] = {
+    def eval(contract: Contract): PR[BigDecimal] = contract match {
+      case Zero            => bigK(0: BigDecimal)
       case One(k2)         => model.exch(k)(k2)
-      case Give(c)         => bigK(-1.0) * eval(c)
+      case Give(c)         => bigK(-1.0: BigDecimal) * eval(c)
       case Scale(o, c)     => evalO(o) * eval(c)
       case And(c1, c2)     => eval(c1) %+ eval(c2)
       case Or(c1, c2)      => max(eval(c1), eval(c2))
@@ -25,11 +25,11 @@ object Cashflows {
     eval _
   }
 
-  def cat(k: Currency, bs: PR[Boolean], rs: PR[Double], steps: Int): PR[Double] = {
+  def cat(k: Currency, bs: PR[Boolean], rs: PR[BigDecimal], steps: Int): PR[BigDecimal] = {
      PR(catCalc(bs.unPr, rs.unPr, steps))
   }
 
-  private def catCalc(b: Stream[RV[Boolean]], p: Stream[RV[Double]], steps: Int): Stream[RV[Double]] = {
+  private def catCalc(b: Stream[RV[Boolean]], p: Stream[RV[BigDecimal]], steps: Int): Stream[RV[BigDecimal]] = {
     val (bRv #:: bs) = b
     val (pRv #:: ps) = p
     //if (bRv.forall(bv => bv)) Stream(pRv)
@@ -38,7 +38,7 @@ object Cashflows {
     } else {
       val rest = catCalc(bs, ps, steps - 1)
       val (nextSlice #:: _) = rest
-      val thisSlice = zipWith(bRv, pRv)((b, p) => if (b) p else 0.0)
+      val thisSlice = zipWith(bRv, pRv)((b, p) => if (b) p else 0.0: BigDecimal)
       thisSlice #:: rest
     }
   }

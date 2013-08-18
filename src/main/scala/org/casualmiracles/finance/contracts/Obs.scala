@@ -8,6 +8,9 @@ object Obs {
     Obs((t: Date) => PR(zipWith(obsA.f(t).unPr, obsB.f(t).unPr)(rvF)))
   }
 
+  implicit def toBigDecimalObs[T <% BigDecimal](obs: Obs[T]): Obs[BigDecimal] =
+    Obs((t: Date) => PR(obs.f(t).unPr.map(_.map(x => x: BigDecimal))))
+
   implicit class ObsNumericOps[T](val obs: Obs[T])(implicit n: Numeric[T]) {
     def *(a: Obs[T]) = lift2(n.times, obs, a)
     def %+(a: Obs[T]) = lift2(n.plus, obs, a)
@@ -37,8 +40,7 @@ object Obs {
   }
 
   implicit class ObsDateOps(val obs: Obs[Date]) extends AnyVal {
-    def -(a: Obs[Date]) = lift2((_: Date).t - (_: Date).t, obs, a)
-    def %+(a: Obs[Date]) = lift2((_: Date).t + (_: Date).t, obs, a)
+    def -(a: Obs[Date]) = lift2((_: Date) - (_: Date), obs, a)
   }
 }
 

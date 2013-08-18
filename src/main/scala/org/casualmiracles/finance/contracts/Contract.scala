@@ -12,7 +12,7 @@ trait Contract
 
 case object Zero extends Contract
 case class One(currency: Currency) extends Contract
-case class Scale(obs: Obs[Double], contract: Contract) extends Contract
+case class Scale(obs: Obs[BigDecimal], contract: Contract) extends Contract
 case class When(obs: Obs[Boolean], c: Contract) extends Contract
 case class Anytime(obs: Obs[Boolean], c: Contract) extends Contract
 case class Until(obs: Obs[Boolean], c: Contract) extends Contract

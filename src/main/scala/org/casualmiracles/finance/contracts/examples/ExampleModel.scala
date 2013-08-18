@@ -9,11 +9,11 @@ object ExampleModel {
   import Zip._
 
   // Compositional valuation semantics for contracts
-  def evalC(model: Model, k: Currency): Contract => PR[Double] = {
-    def eval(contract: Contract): PR[Double] = contract match {
-      case Zero            => bigK(0)
+  def evalC(model: Model, k: Currency): Contract => PR[BigDecimal] = {
+    def eval(contract: Contract): PR[BigDecimal] = contract match {
+      case Zero            => bigK(0: BigDecimal)
       case One(k2)         => model.exch(k)(k2)
-      case Give(c)         => bigK(-1.0) * eval(c)
+      case Give(c)         => bigK(-1.0: BigDecimal) * eval(c)
       case Scale(o, c)     => evalO(o) * eval(c)
       case And(c1, c2)     => eval(c1) %+ eval(c2)
       case Or(c1, c2)      => max(eval(c1), eval(c2))
@@ -32,10 +32,10 @@ object ExampleModel {
 
   case class Model(
     modelStart: Date,
-    disc: Currency => PR[Boolean] => PR[Double] => PR[Double],
-    exch: Currency => Currency => PR[Double],
-    absorb: Currency => PR[Boolean] => PR[Double] => PR[Double],
-    rateModel: Currency => PR[Double])
+    disc: Currency => PR[Boolean] => PR[BigDecimal] => PR[BigDecimal],
+    exch: Currency => Currency => PR[BigDecimal],
+    absorb: Currency => PR[Boolean] => PR[BigDecimal] => PR[BigDecimal],
+    rateModel: Currency => PR[BigDecimal])
 
   def exampleModel(modelDate: Date) = Model(
     modelStart = modelDate,
@@ -45,16 +45,16 @@ object ExampleModel {
     rateModel = rateModel)
 
   // Interest Rate Model
-  def rates(rateNow: Double, delta: Double): PR[Double] = {
-    def makeRateSlices(rateNow: Double, n: Int): Stream[RV[Double]] = {
+  def rates(rateNow: BigDecimal, delta: BigDecimal): PR[BigDecimal] = {
+    def makeRateSlices(rateNow: BigDecimal, n: Int): Stream[RV[BigDecimal]] = {
       rateSlice(rateNow, n) #:: makeRateSlices(rateNow - delta, n + 1)
     }
-    def rateSlice(minRate: Double, n: Int) = comb(minRate).take(n)
-    def comb(x: Double): Stream[Double] = x #:: comb(x + 2 * delta)
+    def rateSlice(minRate: BigDecimal, n: Int) = comb(minRate).take(n)
+    def comb(x: BigDecimal): Stream[BigDecimal] = x #:: comb(x + 2 * delta)
     PR(makeRateSlices(rateNow, 1))
   }
 
-  val rateModels: Map[Currency, PR[Double]] = Map(
+  val rateModels: Map[Currency, PR[BigDecimal]] = Map(
     CHF -> rates(7, 0.8),
     EUR -> rates(6.5, 0.25),
     GBP -> rates(8, 0.5),
@@ -65,9 +65,9 @@ object ExampleModel {
   def rateModel(k: Currency) = rateModels.get(k).getOrElse(sys.error("rateModel: currency not found " + k))
 
   // Disc primitive
-  def disc(k: Currency, bs: PR[Boolean], rs: PR[Double]): PR[Double] = PR(discCalc(bs.unPr, rs.unPr, rateModel(k).unPr))
+  def disc(k: Currency, bs: PR[Boolean], rs: PR[BigDecimal]): PR[BigDecimal] = PR(discCalc(bs.unPr, rs.unPr, rateModel(k).unPr))
 
-  def discCalc(b: Stream[RV[Boolean]], p: Stream[RV[Double]], rate: Stream[RV[Double]]): Stream[RV[Double]] = {
+  def discCalc(b: Stream[RV[Boolean]], p: Stream[RV[BigDecimal]], rate: Stream[RV[BigDecimal]]): Stream[RV[BigDecimal]] = {
     val (bRv #:: bs) = b
     val (pRv #:: ps) = p
     val (rateRv #:: rs) = rate
@@ -82,27 +82,27 @@ object ExampleModel {
     }
   }
 
-  def prevSlice(s: RV[Double]): RV[Double] = s match {
+  def prevSlice(s: RV[BigDecimal]): RV[BigDecimal] = s match {
     case Empty                => Empty
     case (_ #:: Empty)        => Empty
     case (n1 #:: n2 #:: rest) => ((n1 + n2) / 2.0) #:: prevSlice(n2 #:: rest)
   }
 
-  def absorb(k: Currency, prb: PR[Boolean], prRvs: PR[Double]): PR[Double] = {
+  def absorb(k: Currency, prb: PR[Boolean], prRvs: PR[BigDecimal]): PR[BigDecimal] = {
     val bSlices = prb.unPr
     val rvs = prRvs.unPr
     PR(zipWith(bSlices, rvs)((bRv, rvsRv) => zipWith(bRv, rvsRv)((o, p) => if (o) 0 else p)))
   }
 
-  def exch(k1: Currency, k2: Currency): PR[Double] = PR(konstSlices(1))
+  def exch(k1: Currency, k2: Currency): PR[BigDecimal] = PR(konstSlices(1))
 
-  def expectedValue(outcomes: RV[Double], probabilities: RV[Double]): Double = (zipWith(outcomes, probabilities)(_ * _)).sum
+  def expectedValue(outcomes: RV[BigDecimal], probabilities: RV[BigDecimal]): BigDecimal = (zipWith(outcomes, probabilities)(_ * _)).sum
 
-  def probabiltyLattice: Stream[RV[Double]] = probabilities(pathCounts)
+  def probabiltyLattice: Stream[RV[BigDecimal]] = probabilities(pathCounts)
 
-  def probabilities(s: Stream[RV[Int]]): Stream[RV[Double]] = {
+  def probabilities(s: Stream[RV[Int]]): Stream[RV[BigDecimal]] = {
     val (sl #:: sls) = s
-    val sum = sl.sum.toDouble
+    val sum: BigDecimal = sl.sum
     sl.map(_ / sum) #:: probabilities(sls)
   }
 

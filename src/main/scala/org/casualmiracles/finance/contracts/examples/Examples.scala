@@ -9,7 +9,7 @@ import Instruments._
 object Examples extends App {
 
   val xm: Model = exampleModel(mkDate(0))
-  val evalX: Contract => PR[Double] = evalC(xm, USD)
+  val evalX: Contract => PR[BigDecimal] = evalC(xm, USD)
   val t1Horizon = 3
   val t1 = mkDate(t1Horizon)
   val c1: Contract = zeroCouponBond(t1, 10, USD)
@@ -22,21 +22,21 @@ object Examples extends App {
   println("C1")
   printPr(evalX(c1), 10)
 
-  def absorbEx(t: Date, x: Double, k: Currency) = until(constant(t) > date)(scale(x)(one(k)))
+  def absorbEx(t: Date, x: BigDecimal, k: Currency) = until(const(t) > date)(scale(x)(one(k)))
 
   // some examples from the paper
   val t2 = mkDate(10)
 
-  def rainInCyprus = constant(10.0) // something that generates rainfall figures
-  def interestRate = constant(1.0) // obviously need a real source of interest rates
+  def rainInCyprus = const(10.0: BigDecimal) // something that generates rainfall figures
+  def interestRate = const(1.0: BigDecimal) // obviously need a real source of interest rates
 
   val c8 = scale(rainInCyprus)(One(GBP))
 
-  val c9 = scale((rainInCyprus - 7) * 1000)(One(GBP))
+  val c9 = scale((rainInCyprus - const(7)) * const(1000))(One(GBP))
 
-  val c10 = cond(rainInCyprus > 9)(c8)(c9)
+  val c10 = cond(rainInCyprus > const(9))(c8)(c9)
 
-  val c12 = until(interestRate > 6)(american(t1, t2, c10))
+  val c12 = until(interestRate > const(6))(american(t1, t2, c10))
 
   println("c1 cashflow")
   printPr(cashflow(xm, USD, 10)(c11), 100)
