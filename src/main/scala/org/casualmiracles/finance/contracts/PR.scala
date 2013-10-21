@@ -27,12 +27,7 @@ trait PRs {
   }
 
   def printPr(pr: PR[_], n: Int) =
-    pr.unPr.take(n).zipWithIndex.foreach { is => { print(is._2 + ": "); printRV(is._1) } }
-
-  def printRV(rv: RV[_]) {
-    print(rv.mkString(" "))
-    println("")
-  }
+    for ((rv, n) <- pr.unPr.take(n).zipWithIndex) println(s"$n: ${rv mkString " "}")
 }
 
 object PR extends PRs {
