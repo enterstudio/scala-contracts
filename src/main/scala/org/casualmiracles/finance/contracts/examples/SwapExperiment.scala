@@ -1,5 +1,6 @@
 package org.casualmiracles.finance.contracts.examples
 
+import scala.language.implicitConversions
 import org.casualmiracles.finance.contracts._
 
 import Cashflows._
@@ -23,17 +24,17 @@ object SwapExperiment extends App {
     between(start, end) && ((date - start) % frequency === 0)
   }
 
- val fixedSchedule = uniformSchedule(mkDate(4), mkDate(10), 2)
- val floatingSchedule = uniformSchedule(mkDate(4), mkDate(10), 3)
+  val fixedSchedule = uniformSchedule(mkDate(4), mkDate(10), 2)
+  val floatingSchedule = uniformSchedule(mkDate(4), mkDate(10), 3)
 
- val fixedLeg = when(fixedSchedule)(fixedRate(1, USD, 0.05))
- val floatingLeg = when(floatingSchedule)(floatingRate(1, USD, interestRate))
+  val fixedLeg = when(fixedSchedule)(fixedRate(1, USD, 0.05))
+  val floatingLeg = when(floatingSchedule)(floatingRate(1, USD, interestRate))
 
- val example = swap(fixedLeg, floatingLeg)
+  val example = swap(fixedLeg, floatingLeg)
 
- val horizon = 15
- val xm = exampleModel(time0)
- val evalX = evalC(xm, USD)
+  val horizon = 15
+  val xm = exampleModel(time0)
+  val evalX = evalC(xm, USD)
 
- printPr(cashflow(xm, USD, horizon)(example), horizon)
+  printPr(cashflow(xm, USD, horizon)(example), horizon)
 }

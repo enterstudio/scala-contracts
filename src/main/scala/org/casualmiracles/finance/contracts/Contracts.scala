@@ -1,5 +1,7 @@
 package org.casualmiracles.finance.contracts
 
+import scala.language.implicitConversions
+
 import org.joda.time.{DateTimeZone, LocalDate}
 
 object Contracts extends PRs {
@@ -15,7 +17,7 @@ object Contracts extends PRs {
 
   def const[T](k: T): Obs[T] = Obs((d: Date) => bigK(k))
 
-  def date: Obs[Date] = Obs((t: Date) => PR(timeSlices(Stream(t))))
+  def date: Obs[Date] = Obs((t: Date) => PR(timeSlices(Stream(t), 0)))
 
   def bigK[T](x: T): PR[T] = PR(konstSlices(x))
 
@@ -26,17 +28,17 @@ object Contracts extends PRs {
 
   // Why does this work this way?
   // Isn't PR supposed to consist of a set of random values, not lists of values containing possible duplicates?
-  def timeSlices(sl: RV[Date]): Stream[RV[Date]] = {
-    val (Date(s, t) #:: _) = sl
-    val nextSlice = Stream.fill(t + 2)(Date(s, t + 1))
-    sl #:: timeSlices(nextSlice)
+  def timeSlices(sl: RV[Date], n: Int = 0): Stream[RV[Date]] = {
+    val ((d: Date) #:: _) = sl
+    val nextSlice = Stream.fill(n + 2)(d + 1)
+    sl #:: timeSlices(nextSlice, n + 1)
   }
 
   def between(d1: Date, d2: Date): Obs[Boolean] = (date >= d1) && (date <= d2)
 
   def at(d: Date): Obs[Boolean] = date === d
 
-  def mkDate(d: CalendarTime, t: TimeStep): Date = Date(d, t)
+  def mkDate(d: CalendarTime, t: TimeStep): Date = Date(d) + t
 
   def mkDate(t: TimeStep): Date = Date(now(), t)
 
