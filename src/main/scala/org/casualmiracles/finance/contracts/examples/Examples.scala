@@ -27,8 +27,8 @@ object Examples extends App {
   // some examples from the paper
   val t2 = mkDate(10)
 
-  def rainInCyprus = const(10.0: BigDecimal) // something that generates rainfall figures
-  def interestRate = const(1.0: BigDecimal) // obviously need a real source of interest rates
+  def rainInCyprus = const(10.0) // something that generates rainfall figures
+  def interestRate = const(1.0) // obviously need a real source of interest rates
 
   val c8 = scale(rainInCyprus)(One(GBP))
 
