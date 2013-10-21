@@ -98,7 +98,7 @@ object ExampleModel {
 
   def expectedValue(outcomes: RV[BigDecimal], probabilities: RV[BigDecimal]): BigDecimal = (zipWith(outcomes, probabilities)(_ * _)).sum
 
-  def probabiltyLattice: Stream[RV[BigDecimal]] = probabilities(pathCounts)
+  def probabilityLattice: Stream[RV[BigDecimal]] = probabilities(pathCounts)
 
   def probabilities(s: Stream[RV[Int]]): Stream[RV[BigDecimal]] = {
     val (sl #:: sls) = s
