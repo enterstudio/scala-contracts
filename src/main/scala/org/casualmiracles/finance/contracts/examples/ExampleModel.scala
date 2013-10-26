@@ -71,14 +71,13 @@ object ExampleModel {
     val (bRv #:: bs) = b
     val (pRv #:: ps) = p
     val (rateRv #:: rs) = rate
-    if (bRv.forall(bv => bv)) {
+    if (bRv forall identity) {
       Stream(pRv)
     } else {
-      val rest = discCalc(bs, ps, rs)
-      val (nextSlice #:: _) = rest
+      val (nextSlice #:: rest) = discCalc(bs, ps, rs)
       val discSlice = zipWith(prevSlice(nextSlice), rateRv)((x, r) => x / (1 + r / 100))
       val thisSlice = zipWith3(bRv, pRv, discSlice)((b, p, q) => if (b) p else q)
-      thisSlice #:: rest
+      thisSlice #:: nextSlice #:: rest
     }
   }
 

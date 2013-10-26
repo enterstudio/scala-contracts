@@ -32,12 +32,10 @@ object Cashflows {
   private def catCalc(b: Stream[RV[Boolean]], p: Stream[RV[BigDecimal]], steps: Int): Stream[RV[BigDecimal]] = {
     val (bRv #:: bs) = b
     val (pRv #:: ps) = p
-    //if (bRv.forall(bv => bv)) Stream(pRv)
     if (steps == 0) {
       Stream(pRv)
     } else {
       val rest = catCalc(bs, ps, steps - 1)
-      val (nextSlice #:: _) = rest
       val thisSlice = zipWith(bRv, pRv)((b, p) => if (b) p else 0.0: BigDecimal)
       thisSlice #:: rest
     }

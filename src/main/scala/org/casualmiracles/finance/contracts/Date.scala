@@ -7,8 +7,8 @@ case class Date(c: CalendarTime) extends Ordered[Date] {
   def compare(that: Date) = localDate compareTo that.localDate
 
   def -(d: Date): TimeStep = Days.daysBetween(d.localDate, localDate).getDays
-
   def +(ts: TimeStep): Date = Date(c plusDays ts)
+  def -(ts: TimeStep): Date = Date(c minusDays ts)
 }
 
 object Date {

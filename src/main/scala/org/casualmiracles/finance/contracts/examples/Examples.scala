@@ -17,7 +17,7 @@ object Examples extends App {
   val c11 = european(mkDate(20),
     zeroCouponBond(mkDate(20), 0.4, USD) and
       zeroCouponBond(mkDate(30), 9.3, USD) and
-      zeroCouponBond(mkDate(40), 109.3, USD) andGive (zeroCouponBond(mkDate(12), 100.0, GBP)))
+      zeroCouponBond(mkDate(40), 109.3, USD) andGive zeroCouponBond(mkDate(12), 100.0, GBP))
 
   println("C1")
   printPr(evalX(c1), 10)
@@ -38,6 +38,18 @@ object Examples extends App {
 
   val c12 = until(interestRate > const(6))(american(t1, t2, c10))
 
-  println("c1 cashflow")
+  // custom examples
+  val c2: Contract = fixedCouponBond(t2, 10, USD, 2, 5, 0.05)
+
+  val c22 = european(t1, c2)
+
+  println("c11 cashflow")
   printPr(cashflow(xm, USD, 10)(c11), 100)
+
+  println("C2")
+  println(c2)
+  printPr(evalX(c2), 10)
+
+  println("c22 cashflow")
+  printPr(cashflow(xm, USD, 10)(c22), 100)
 }
