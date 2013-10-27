@@ -1,4 +1,4 @@
-package org.casualmiracles.finance
+package com.daltic.finance
 
 import org.joda.time.LocalDate
 

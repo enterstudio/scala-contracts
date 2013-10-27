@@ -1,7 +1,7 @@
-package org.casualmiracles.finance.contracts.examples
+package com.daltic.finance.contracts.examples
 
 import scala.language.implicitConversions
-import org.casualmiracles.finance.contracts._
+import com.daltic.finance.contracts._
 
 import Cashflows._
 import Contracts._

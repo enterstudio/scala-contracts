@@ -1,6 +1,6 @@
-package org.casualmiracles.finance.contracts.examples
+package com.daltic.finance.contracts.examples
 
-import org.casualmiracles.finance.contracts._
+import com.daltic.finance.contracts._
 
 import Contracts._
 import Stream._

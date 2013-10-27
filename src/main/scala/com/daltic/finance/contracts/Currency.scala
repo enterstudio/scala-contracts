@@ -1,4 +1,4 @@
-package org.casualmiracles.finance.contracts
+package com.daltic.finance.contracts
 
 trait Currency
 case object USD extends Currency

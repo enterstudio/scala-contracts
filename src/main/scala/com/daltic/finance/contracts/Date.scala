@@ -1,4 +1,4 @@
-package org.casualmiracles.finance.contracts
+package com.daltic.finance.contracts
 
 import org.joda.time.Days
 
