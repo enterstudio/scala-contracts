@@ -18,8 +18,8 @@ object Cashflows {
       case Or(c1, c2)      => max(eval(c1), eval(c2))
       case Cond(o, c1, c2) => condPr(evalO(o), eval(c1), eval(c2))
       case When(o, c)      => cat(k, evalO(o), eval(c), steps)
-      //      eval (Anytime o c)  = snell  k (evalO o, eval c)
       case Until(o, c)     => absorb(k, evalO(o), eval(c))
+      //      eval (Anytime o c)  = snell  k (evalO o, eval c)
       case _               => sys.error("todo")
     }
     eval _

@@ -39,7 +39,7 @@ object Examples extends App {
   val c12 = until(interestRate > const(6))(american(t1, t2, c10))
 
   // custom examples
-  val c2: Contract = fixedCouponBond(t2, 10, USD, 2, 5, 0.05)
+  val c2: Contract = couponBond(t2, 10, USD, 2, 5, 0.05)
 
   val c22 = european(t1, c2)
 
