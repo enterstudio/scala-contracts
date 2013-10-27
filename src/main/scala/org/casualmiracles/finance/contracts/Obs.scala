@@ -1,5 +1,7 @@
 package org.casualmiracles.finance.contracts
 
+import scala.language.implicitConversions
+
 object Obs {
   import Zip._
 
@@ -10,6 +12,8 @@ object Obs {
 
   implicit def toBigDecimalObs[T <% BigDecimal](obs: Obs[T]): Obs[BigDecimal] =
     Obs((t: Date) => PR(obs.f(t).unPr.map(_.map(x => x: BigDecimal))))
+
+  implicit def toBigDecimalObs[T <% BigDecimal](n: T): Obs[BigDecimal] = Contracts.const(n: BigDecimal)
 
   implicit class ObsNumericOps[T](val obs: Obs[T])(implicit n: Numeric[T]) {
     def *(a: Obs[T]) = lift2(n.times, obs, a)
