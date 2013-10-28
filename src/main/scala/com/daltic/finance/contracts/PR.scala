@@ -1,7 +1,11 @@
 package com.daltic.finance.contracts
 
+import java.math.MathContext
+
 trait PRs {
   import Zip._
+
+  val DefaultMathContext = new MathContext(5)
 
   def max[T : Numeric](pra: PR[T], prb: PR[T]): PR[T] =
     lift2Pr((a: T, b: T) => implicitly[Numeric[T]].max(a, b), pra, prb)
@@ -26,8 +30,14 @@ trait PRs {
     PR(zipWith3(aPr.unPr, bPr.unPr, cPr.unPr)(rvF))
   }
 
-  def printPr(pr: PR[_], n: Int) =
-    for ((rv, n) <- pr.unPr.take(n).zipWithIndex) println(s"$n: ${rv mkString " "}")
+  def printPr(pr: PR[_], n: Int)(implicit mc: MathContext = DefaultMathContext) =
+    for ((rv, n) <- pr.unPr.take(n).zipWithIndex) {
+      val values = rv map {
+        case b: BigDecimal => b.round(mc)
+        case a => a
+      }
+      println(s"$n: ${values mkString " "}")
+    }
 }
 
 object PR extends PRs {
