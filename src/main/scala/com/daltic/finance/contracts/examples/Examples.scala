@@ -52,4 +52,8 @@ object Examples extends App {
 
   println("c22 cashflow")
   printPr(cashflow(xm, USD, 10)(c22), 100)
+
+  val c3: Contract = callable(Map(mkDate(8) -> money(10.01, USD)), c2)
+  println("C3")
+  printPr(evalX(c3), 10)
 }
