@@ -53,14 +53,23 @@ object Examples extends App {
   println("c22 cashflow")
   printPr(cashflow(xm, USD, 10)(c22), 100)
 
-  val c3: Contract = couponBond(t2, 10, USD, 1, 10, 0.1)
-  val c4: Contract = callable(Map(
-    mkDate(7) -> money(10.02, USD),
-    mkDate(8) -> money(10.01, USD),
-    mkDate(9) -> money(10.005, USD)
-  ), c3)
-  println("C3 (noncallable)")
-  printPr(evalX(c3), 10)
-  println("C4 (callable)")
-  printPr(evalX(c4), 10)
+  val c3: Contract = couponBond(t2, 10, USD, 1, 10, 0.08)
+  val c4: Contract = callable(
+    money(10, USD),
+    Map(
+      mkDate(5) -> money(.2, USD),
+      mkDate(7) -> money(.1, USD),
+      mkDate(9) -> money(.05, USD)
+    ),
+    c3)
+  val c5: Contract = puttable(
+    money(10, USD),
+    (5 to 9).map { n => mkDate(n) -> zero }.toMap,
+    c3)
+  println("C3")
+  printPr(evalX(c3), 11)
+  println("C4 (callable C3)")
+  printPr(evalX(c4), 11)
+  println("C5 (puttable C3)")
+  printPr(evalX(c5), 11)
 }

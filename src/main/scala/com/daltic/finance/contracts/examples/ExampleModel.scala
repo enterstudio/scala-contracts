@@ -13,7 +13,7 @@ object ExampleModel {
     def eval(contract: Contract): PR[BigDecimal] = contract match {
       case Zero            => bigK(0: BigDecimal)
       case One(k2)         => model.exch(k)(k2)
-      case Give(c)         => bigK(-1.0: BigDecimal) * eval(c)
+      case Give(c)         => bigK(-1: BigDecimal) * eval(c)
       case Scale(o, c)     => evalO(o) * eval(c)
       case And(c1, c2)     => eval(c1) %+ eval(c2)
       case Or(c1, c2)      => max(eval(c1), eval(c2))
