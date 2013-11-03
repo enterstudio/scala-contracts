@@ -4,6 +4,8 @@ import scala.language.implicitConversions
 
 import org.joda.time.{DateTimeZone, LocalDate}
 
+import Obs._
+
 object Contracts extends PRs {
 
   def one = One.apply _
@@ -35,6 +37,7 @@ object Contracts extends PRs {
   }
 
   def between(d1: Date, d2: Date): Obs[Boolean] = (date >= d1) && (date <= d2)
+  def in(interval: Interval): Obs[Boolean] = date in interval
 
   def at(d: Date): Obs[Boolean] = date === d
 

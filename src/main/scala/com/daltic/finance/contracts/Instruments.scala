@@ -24,6 +24,6 @@ object Instruments {
   }
 
   def european(d: Date, c: Contract): Contract = when(at(d))(c or Zero)
-  def american(d1: Date, d2: Date, c: Contract): Contract = anytime(between(d1, d2))(c)
+  def american(i: Interval, c: Contract): Contract = anytime(in(i))(c)
   def swap(give: Contract, take: Contract) = take andGive give
 }

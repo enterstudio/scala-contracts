@@ -1,6 +1,7 @@
 package com.daltic.finance.contracts.examples
 
 import scala.language.implicitConversions
+
 import com.daltic.finance.contracts._
 
 import Cashflows._
@@ -21,7 +22,7 @@ object SwapExperiment extends App {
   }
 
   def uniformSchedule(start: Date, end: Date, frequency: Int): Obs[Boolean] = {
-    between(start, end) && ((date - start) % frequency === 0)
+    in(start -> end) && ((date - start) % frequency === 0)
   }
 
   val fixedSchedule = uniformSchedule(mkDate(4), mkDate(10), 2)

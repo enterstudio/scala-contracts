@@ -9,6 +9,12 @@ case class Date(c: CalendarTime) extends Ordered[Date] {
   def -(d: Date): TimeStep = Days.daysBetween(d.localDate, localDate).getDays
   def +(ts: TimeStep): Date = Date(c plusDays ts)
   def -(ts: TimeStep): Date = Date(c minusDays ts)
+
+  def ->(d: Date): Interval = Interval(this, d)
+}
+
+case class Interval(d1: Date, d2: Date) {
+  def contains(d: Date): Boolean = d >= d1 && d <= d2
 }
 
 object Date {

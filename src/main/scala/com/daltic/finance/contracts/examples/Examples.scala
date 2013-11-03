@@ -1,9 +1,10 @@
 package com.daltic.finance.contracts.examples
 
 import com.daltic.finance.contracts._
+
+import Cashflows._
 import Contracts._
 import ExampleModel._
-import Cashflows._
 import Instruments._
 
 object Examples extends App {
@@ -36,7 +37,7 @@ object Examples extends App {
 
   val c10 = cond(rainInCyprus > const(9))(c8)(c9)
 
-  val c12 = until(interestRate > const(6))(american(t1, t2, c10))
+  val c12 = until(interestRate > const(6))(american(t1 -> t2, c10))
 
   // custom examples
   val c2: Contract = couponBond(t2, 10, USD, 2, 5, 0.05)

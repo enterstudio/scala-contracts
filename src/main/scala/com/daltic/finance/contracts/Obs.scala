@@ -46,6 +46,10 @@ object Obs {
   implicit class ObsDateOps(val obs: Obs[Date]) extends AnyVal {
     def -(a: Obs[Date]) = lift2((_: Date) - (_: Date), obs, a)
   }
+
+  implicit class ObsIntervalOps(val obs: Obs[Date]) extends AnyVal {
+    def in(a: Obs[Interval]) = lift2((d: Date, i: Interval) => i.contains(d), obs, a)
+  }
 }
 
 case class Obs[T](f: Date => PR[T])
