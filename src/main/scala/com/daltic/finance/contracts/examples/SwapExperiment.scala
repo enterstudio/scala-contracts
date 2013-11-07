@@ -11,6 +11,8 @@ import Instruments._
 
 object SwapExperiment extends App {
 
+  implicit val tc = TimeContext(step = 1)
+
   def interestRate = const(1.0) // obviously need a real source of interest rates
 
   def fixedRate(notional: BigDecimal, currency: Currency, rate: BigDecimal) = {
@@ -34,7 +36,7 @@ object SwapExperiment extends App {
   val example = swap(fixedLeg, floatingLeg)
 
   val horizon = 15
-  val xm = exampleModel(time0)
+  val xm = exampleModel
   val evalX = evalC(xm, USD)
 
   printPr(cashflow(xm, USD, horizon)(example), horizon)

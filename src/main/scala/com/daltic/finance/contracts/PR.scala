@@ -30,13 +30,14 @@ trait PRs {
     PR(zipWith3(aPr.unPr, bPr.unPr, cPr.unPr)(rvF))
   }
 
-  def printPr(pr: PR[_], n: Int)(implicit mc: MathContext = DefaultMathContext) =
+  def printPr(pr: PR[_], n: Int)(implicit tc: TimeContext, mc: MathContext = DefaultMathContext) =
     for ((rv, n) <- pr.unPr.take(n).zipWithIndex) {
       val values = rv map {
         case b: BigDecimal => b.round(mc)
         case a => a
       }
-      println(s"$n: ${values mkString " "}")
+      val t = tc.step*n
+      println(s"$t: ${values mkString " "}")
     }
 }
 

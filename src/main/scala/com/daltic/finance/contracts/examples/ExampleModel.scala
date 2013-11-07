@@ -14,13 +14,13 @@ object ExampleModel {
       case Zero            => bigK(0: BigDecimal)
       case One(k2)         => model.exch(k)(k2)
       case Give(c)         => bigK(-1: BigDecimal) * eval(c)
-      case Scale(o, c)     => evalO(o) * eval(c)
+      case Scale(o, c)     => evalO(o, model.modelStart) * eval(c)
       case And(c1, c2)     => eval(c1) %+ eval(c2)
       case Or(c1, c2)      => max(eval(c1), eval(c2))
-      case Cond(o, c1, c2) => condPr(evalO(o), eval(c1), eval(c2))
-      case When(o, c)      => disc(k, evalO(o), eval(c))
+      case Cond(o, c1, c2) => condPr(evalO(o, model.modelStart), eval(c1), eval(c2))
+      case When(o, c)      => disc(k, evalO(o, model.modelStart), eval(c))
       //      eval (Anytime o c)  = snell  k (evalO o, eval c)
-      case Until(o, c)     => absorb(k, evalO(o), eval(c))
+      case Until(o, c)     => absorb(k, evalO(o, model.modelStart), eval(c))
       case _               => sys.error("todo")
     }
     eval _
@@ -37,8 +37,8 @@ object ExampleModel {
     absorb: Currency => PR[Boolean] => PR[BigDecimal] => PR[BigDecimal],
     rateModel: Currency => PR[BigDecimal])
 
-  def exampleModel(modelDate: Date) = Model(
-    modelStart = modelDate,
+  def exampleModel(implicit tc: TimeContext) = Model(
+    modelStart = tc.start,
     disc = (disc _).curried,
     exch = (exch _).curried,
     absorb = (absorb _).curried,
@@ -95,7 +95,7 @@ object ExampleModel {
 
   def exch(k1: Currency, k2: Currency): PR[BigDecimal] = PR(konstSlices(1))
 
-  def expectedValue(outcomes: RV[BigDecimal], probabilities: RV[BigDecimal]): BigDecimal = (zipWith(outcomes, probabilities)(_ * _)).sum
+  def expectedValue(outcomes: RV[BigDecimal], probabilities: RV[BigDecimal]): BigDecimal = zipWith(outcomes, probabilities)(_ * _).sum
 
   def probabilityLattice: Stream[RV[BigDecimal]] = probabilities(pathCounts)
 
@@ -107,9 +107,9 @@ object ExampleModel {
 
   def pathCounts: Stream[RV[Int]] = {
     def zero = Stream(0)
-    def paths(sl: Stream[Int]): Stream[RV[Int]] = sl #:: (paths(zipWith(sl ++ zero, 0 #:: sl)(_ + _)))
+    def paths(sl: Stream[Int]): Stream[RV[Int]] = sl #:: paths(zipWith(sl ++ zero, 0 #:: sl)(_ + _))
     paths(Stream(1))
   }
 
-  def evalO[T](o: Obs[T]): PR[T] = o.f(time0)
+  def evalO[T](o: Obs[T], start: Date): PR[T] = o.f(start)
 }

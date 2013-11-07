@@ -9,7 +9,9 @@ import Instruments._
 
 object Examples extends App {
 
-  val xm: Model = exampleModel(mkDate(0))
+  implicit val tc = TimeContext(step = 2)
+
+  val xm: Model = exampleModel
   val evalX: Contract => PR[BigDecimal] = evalC(xm, USD)
   val t1Horizon = 3
   val t1 = mkDate(t1Horizon)
@@ -26,7 +28,7 @@ object Examples extends App {
   def absorbEx(t: Date, x: BigDecimal, k: Currency) = until(const(t) > date)(scale(x)(one(k)))
 
   // some examples from the paper
-  val t2 = mkDate(10)
+  val t2 = mkDate(20)
 
   def rainInCyprus = const(10.0) // something that generates rainfall figures
   def interestRate = const(1.0) // obviously need a real source of interest rates
@@ -48,24 +50,23 @@ object Examples extends App {
   printPr(cashflow(xm, USD, 10)(c11), 100)
 
   println("C2")
-  println(c2)
   printPr(evalX(c2), 10)
 
   println("c22 cashflow")
   printPr(cashflow(xm, USD, 10)(c22), 100)
 
-  val c3: Contract = couponBond(t2, 10, USD, 1, 10, 0.08)
+  val c3: Contract = couponBond(t2, 10, USD, 2, 10, 0.08)
   val c4: Contract = callable(
     money(10, USD),
     Map(
-      mkDate(5) -> money(.2, USD),
-      mkDate(7) -> money(.1, USD),
-      mkDate(9) -> money(.05, USD)
+      mkDate(10) -> money(.2, USD),
+      mkDate(15) -> money(.1, USD),
+      mkDate(17) -> money(.05, USD)
     ),
     c3)
   val c5: Contract = puttable(
     money(10, USD),
-    (5 to 9).map { n => mkDate(n) -> zero }.toMap,
+    (12 to 20).map { n => mkDate(n) -> zero }.toMap,
     c3)
   println("C3")
   printPr(evalX(c3), 11)
